@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -49,5 +50,11 @@ export class MessagesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) {
     return { id, ...body };
+  }
+
+  // Dele a message
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return `This route DELETE a message with id: ${id}`;
   }
 }
