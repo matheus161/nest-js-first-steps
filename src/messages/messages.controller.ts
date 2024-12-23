@@ -10,6 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { MessagesService } from './messages.service';
 
 /**
  * CRUD
@@ -28,6 +29,8 @@ import {
 
 @Controller('messages')
 export class MessagesController {
+  constructor(private readonly messageService: MessagesService) {}
+
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
