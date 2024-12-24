@@ -29,8 +29,8 @@ export class MessagesService {
     return this.messages;
   }
 
-  findOne(id: string) {
-    const message = this.messages.find(item => item.id === +id);
+  findOne(id: number) {
+    const message = this.messages.find(item => item.id === id);
 
     if (!message) this.throwNotFoundError();
 
@@ -72,9 +72,9 @@ export class MessagesService {
     return this.messages[isMessageExistsIndex];
   }
 
-  remove(id: string) {
+  remove(id: number) {
     const isMessageExistsIndex = this.messages.findIndex(
-      item => item.id === +id,
+      item => item.id === id,
     );
 
     if (isMessageExistsIndex < 0) {
