@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
+import { CreateMessageDto } from './dto/create-message.dto.decorator';
+import { UpdateMessageDto } from './dto/update-message.dto.decorator';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -35,17 +37,23 @@ export class MessagesService {
     return message;
   }
 
-  create(body: any) {
+  create(createMessageDto: CreateMessageDto) {
     this.lastId++;
+
     const id = this.lastId;
     const newMessage = {
       id,
-      ...body,
+      ...createMessageDto,
+      lido: false,
+      data: new Date(),
     };
+
     this.messages.push(newMessage);
+
+    return newMessage;
   }
 
-  update(id: string, body: any) {
+  update(id: string, updateMessageDto: UpdateMessageDto) {
     const isMessageExistsIndex = this.messages.findIndex(
       item => item.id === +id,
     );
@@ -58,7 +66,7 @@ export class MessagesService {
 
     this.messages[isMessageExistsIndex] = {
       ...findMessage,
-      ...body,
+      ...updateMessageDto,
     };
 
     return this.messages[isMessageExistsIndex];

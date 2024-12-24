@@ -11,6 +11,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
+import { CreateMessageDto } from './dto/create-message.dto.decorator';
+import { UpdateMessageDto } from './dto/update-message.dto.decorator';
 
 /**
  * CRUD
@@ -25,6 +27,11 @@ import { MessagesService } from './messages.service';
  * PATCH X PUT
  * PATCH - is used to update only one resource/one object part
  * PUT - is used to update all the object (send all the object)
+ */
+
+/**
+ * DTO -> Data Transfer Object
+ * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
 @Controller('messages')
@@ -48,14 +55,14 @@ export class MessagesController {
 
   // Create a message
   @Post()
-  create(@Body() body: any) {
-    return this.messageService.create(body);
+  create(@Body() createMessageDto: CreateMessageDto) {
+    return this.messageService.create(createMessageDto);
   }
 
   // Update a message
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    return this.messageService.update(id, body);
+  update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
+    return this.messageService.update(id, updateMessageDto);
   }
 
   // Delete a message
