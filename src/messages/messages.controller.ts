@@ -36,30 +36,31 @@ export class MessagesController {
   @Get()
   findAll(@Query() pagination: any) {
     const { limit = 10, offset = 0 } = pagination;
-    return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
+    // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
+    return this.messageService.findAll();
   }
 
   // Find one message
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return `This route returns only one message with id: ${id}`;
+    return this.messageService.findOne(id);
   }
 
   // Create a message
   @Post()
   create(@Body() body: any) {
-    return body;
+    return this.messageService.create(body);
   }
 
   // Update a message
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) {
-    return { id, ...body };
+    return this.messageService.update(id, body);
   }
 
-  // Dele a message
+  // Delete a message
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return `This route DELETE a message with id: ${id}`;
+    return this.messageService.remove(id);
   }
 }
