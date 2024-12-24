@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 
 /**
@@ -18,12 +18,21 @@ export class MessagesService {
     },
   ];
 
+  throwNotFoundError() {
+    // throw new HttpException('Recado não encontrado', HttpStatus;NOT_FOUND)
+    throw new NotFoundException('Recado não encontrado');
+  }
+
   findAll() {
     return this.messages;
   }
 
   findOne(id: string) {
-    return this.messages.find(item => item.id === +id);
+    const message = this.messages.find(item => item.id === +id);
+
+    if (!message) this.throwNotFoundError();
+
+    return message;
   }
 
   create(body: any) {
@@ -41,14 +50,18 @@ export class MessagesService {
       item => item.id === +id,
     );
 
-    if (isMessageExistsIndex >= 0) {
-      const findMessage = this.messages[isMessageExistsIndex];
-
-      this.messages[isMessageExistsIndex] = {
-        ...findMessage,
-        ...body,
-      };
+    if (isMessageExistsIndex < 0) {
+      this.throwNotFoundError();
     }
+
+    const findMessage = this.messages[isMessageExistsIndex];
+
+    this.messages[isMessageExistsIndex] = {
+      ...findMessage,
+      ...body,
+    };
+
+    return this.messages[isMessageExistsIndex];
   }
 
   remove(id: string) {
@@ -56,8 +69,14 @@ export class MessagesService {
       item => item.id === +id,
     );
 
-    if (isMessageExistsIndex >= 0) {
-      this.messages.splice(isMessageExistsIndex, 1);
+    if (isMessageExistsIndex < 0) {
+      this.throwNotFoundError();
     }
+
+    const message = this.messages[isMessageExistsIndex];
+
+    this.messages.splice(isMessageExistsIndex, 1);
+
+    return message;
   }
 }
