@@ -15,17 +15,6 @@ export class MessagesService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  private messages: Message[] = [
-    {
-      id: 1,
-      texto: 'Este é um recado de teste',
-      de: 'Joana',
-      para: 'João',
-      lido: false,
-      data: new Date(),
-    },
-  ];
-
   throwNotFoundError() {
     // throw new HttpException('Recado não encontrado', HttpStatus;NOT_FOUND)
     throw new NotFoundException('Recado não encontrado');
@@ -57,23 +46,21 @@ export class MessagesService {
     return this.messageRepository.save(message);
   }
 
-  update(id: string, updateMessageDto: UpdateMessageDto) {
-    const isMessageExistsIndex = this.messages.findIndex(
-      item => item.id === +id,
-    );
-
-    if (isMessageExistsIndex < 0) {
-      this.throwNotFoundError();
-    }
-
-    const findMessage = this.messages[isMessageExistsIndex];
-
-    this.messages[isMessageExistsIndex] = {
-      ...findMessage,
-      ...updateMessageDto,
+  async update(id: number, updateMessageDto: UpdateMessageDto) {
+    const partialUpdateMessageDto = {
+      lido: updateMessageDto?.lido,
+      texto: updateMessageDto?.texto,
     };
 
-    return this.messages[isMessageExistsIndex];
+    // Find and upload
+    const message = await this.messageRepository.preload({
+      id,
+      ...partialUpdateMessageDto,
+    });
+
+    if (!message) return this.throwNotFoundError();
+
+    return await this.messageRepository.save(message);
   }
 
   async remove(id: number) {
