@@ -15,7 +15,6 @@ export class MessagesService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  private lastId = 1;
   private messages: Message[] = [
     {
       id: 1,
@@ -47,20 +46,15 @@ export class MessagesService {
     return message;
   }
 
-  create(createMessageDto: CreateMessageDto) {
-    this.lastId++;
-
-    const id = this.lastId;
+  async create(createMessageDto: CreateMessageDto) {
     const newMessage = {
-      id,
       ...createMessageDto,
       lido: false,
       data: new Date(),
     };
 
-    this.messages.push(newMessage);
-
-    return newMessage;
+    const message = await this.messageRepository.create(newMessage);
+    return this.messageRepository.save(message);
   }
 
   update(id: string, updateMessageDto: UpdateMessageDto) {
@@ -82,19 +76,13 @@ export class MessagesService {
     return this.messages[isMessageExistsIndex];
   }
 
-  remove(id: number) {
-    const isMessageExistsIndex = this.messages.findIndex(
-      item => item.id === id,
-    );
+  async remove(id: number) {
+    const message = await this.messageRepository.findOneBy({
+      id,
+    });
 
-    if (isMessageExistsIndex < 0) {
-      this.throwNotFoundError();
-    }
+    if (!message) return this.throwNotFoundError();
 
-    const message = this.messages[isMessageExistsIndex];
-
-    this.messages.splice(isMessageExistsIndex, 1);
-
-    return message;
+    return this.messageRepository.remove(message);
   }
 }
