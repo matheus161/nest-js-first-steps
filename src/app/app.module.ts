@@ -14,8 +14,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: 'postgres',
       database: 'postgres',
       password: '123456',
-      autoLoadEntities: true, // Carrega entidades sem precisar especifica-las
-      synchronize: true, // Sincroniza com o BD. Não deve ser usado em produção
+      autoLoadEntities: true, // Loads entities without needing to specify them
+      synchronize: true, // Synchronizes with the database. Should not be used in production
     }),
     MessagesModule,
   ],
