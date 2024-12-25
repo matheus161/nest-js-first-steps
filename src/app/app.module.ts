@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MessagesModule } from 'src/messages/messages.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PeopleModule } from 'src/people/people.module';
 
 /* Organizar e encapsular o código */
 @Module({
@@ -18,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       synchronize: true, // Synchronizes with the database. Should not be used in production
     }),
     MessagesModule,
+    PeopleModule,
   ],
   controllers: [AppController],
   providers: [AppService] /* Injetar dependencias */,
