@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateMessageDto } from './create-message.dto.decorator';
+import { CreateMessageDto } from './create-message.dto';
 import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateMessageDto extends PartialType(CreateMessageDto) {
