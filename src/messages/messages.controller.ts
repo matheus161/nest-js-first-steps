@@ -14,6 +14,7 @@ import {
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 /**
  * CRUD
@@ -42,10 +43,9 @@ export class MessagesController {
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
-  async findAll(@Query() pagination: any) {
-    const { limit = 10, offset = 0 } = pagination;
+  async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
-    return await this.messageService.findAll();
+    return await this.messageService.findAll(paginationDto);
   }
 
   // Find one message

@@ -5,6 +5,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -22,9 +23,13 @@ export class MessagesService {
     throw new NotFoundException('Recado não encontrado');
   }
 
-  async findAll() {
+  async findAll(paginationDto?: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
     return await this.messageRepository.find({
       relations: ['de', 'para'],
+      take: limit,
+      skip: offset,
       order: {
         id: 'desc',
       },
