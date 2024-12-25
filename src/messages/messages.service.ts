@@ -4,6 +4,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PeopleService } from 'src/people/people.service';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -13,6 +14,7 @@ export class MessagesService {
   constructor(
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
+    private readonly peopleService: PeopleService,
   ) {}
 
   throwNotFoundError() {
