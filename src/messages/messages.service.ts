@@ -23,13 +23,44 @@ export class MessagesService {
   }
 
   async findAll() {
-    return await this.messageRepository.find();
+    return await this.messageRepository.find({
+      relations: ['de', 'para'],
+      order: {
+        id: 'desc',
+      },
+      select: {
+        de: {
+          id: true,
+          nome: true,
+        },
+        para: {
+          id: true,
+          nome: true,
+        },
+      },
+    });
   }
 
   async findOne(id: number) {
     // const message = this.messages.find(item => item.id === id);
     const message = await this.messageRepository.findOne({
-      where: { id },
+      where: {
+        id,
+      },
+      relations: ['de', 'para'],
+      order: {
+        id: 'desc',
+      },
+      select: {
+        de: {
+          id: true,
+          nome: true,
+        },
+        para: {
+          id: true,
+          nome: true,
+        },
+      },
     });
 
     if (!message) this.throwNotFoundError();
@@ -38,14 +69,34 @@ export class MessagesService {
   }
 
   async create(createMessageDto: CreateMessageDto) {
+    const { deId, paraId } = createMessageDto;
+
+    // Find the person who is creating the message
+    const de = await this.peopleService.findOne(deId);
+
+    // Find the person to whom the message is being sent
+    const para = await this.peopleService.findOne(paraId);
+
     const newMessage = {
-      ...createMessageDto,
+      texto: createMessageDto.texto,
+      de,
+      para,
       lido: false,
       data: new Date(),
     };
 
     const message = await this.messageRepository.create(newMessage);
-    return this.messageRepository.save(message);
+    await this.messageRepository.save(message);
+
+    return {
+      ...message,
+      de: {
+        id: message.de.id,
+      },
+      para: {
+        id: message.para.id,
+      },
+    };
   }
 
   async update(id: number, updateMessageDto: UpdateMessageDto) {
