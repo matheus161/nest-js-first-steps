@@ -42,16 +42,16 @@ export class MessagesController {
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
-  findAll(@Query() pagination: any) {
+  async findAll(@Query() pagination: any) {
     const { limit = 10, offset = 0 } = pagination;
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
-    return this.messageService.findAll();
+    return await this.messageService.findAll();
   }
 
   // Find one message
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.messageService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.messageService.findOne(id);
   }
 
   // Create a message

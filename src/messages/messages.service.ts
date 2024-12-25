@@ -2,12 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { CreateMessageDto } from './dto/create-message.dto.decorator';
 import { UpdateMessageDto } from './dto/update-message.dto.decorator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
  */
 @Injectable()
 export class MessagesService {
+  constructor(
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
+  ) {}
+
   private lastId = 1;
   private messages: Message[] = [
     {
@@ -25,12 +32,15 @@ export class MessagesService {
     throw new NotFoundException('Recado não encontrado');
   }
 
-  findAll() {
-    return this.messages;
+  async findAll() {
+    return await this.messageRepository.find();
   }
 
-  findOne(id: number) {
-    const message = this.messages.find(item => item.id === id);
+  async findOne(id: number) {
+    // const message = this.messages.find(item => item.id === id);
+    const message = await this.messageRepository.findOne({
+      where: { id },
+    });
 
     if (!message) this.throwNotFoundError();
 
