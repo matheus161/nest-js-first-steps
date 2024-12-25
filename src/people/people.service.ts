@@ -58,8 +58,22 @@ export class PeopleService {
     return person;
   }
 
-  update(id: number, updatePersonDto: UpdatePersonDto) {
-    return `This action updates a #${id} person`;
+  async update(id: number, updatePersonDto: UpdatePersonDto) {
+    const peopleData = {
+      nome: updatePersonDto?.nome,
+      passwordHash: updatePersonDto?.password,
+    };
+
+    const person = await this.personRepository.preload({
+      id,
+      ...peopleData,
+    });
+
+    if (!person) {
+      throw new NotFoundException('Pessoa não encontrada');
+    }
+
+    return this.personRepository.save(person);
   }
 
   async remove(id: number) {
