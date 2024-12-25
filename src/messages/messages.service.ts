@@ -100,18 +100,10 @@ export class MessagesService {
   }
 
   async update(id: number, updateMessageDto: UpdateMessageDto) {
-    const partialUpdateMessageDto = {
-      lido: updateMessageDto?.lido,
-      texto: updateMessageDto?.texto,
-    };
+    const message = await this.findOne(id);
 
-    // Find and upload
-    const message = await this.messageRepository.preload({
-      id,
-      ...partialUpdateMessageDto,
-    });
-
-    if (!message) return this.throwNotFoundError();
+    message.texto = updateMessageDto?.texto ?? message.texto;
+    message.lido = updateMessageDto?.lido ?? message.lido;
 
     return await this.messageRepository.save(message);
   }
