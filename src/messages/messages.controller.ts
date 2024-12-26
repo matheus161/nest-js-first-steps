@@ -6,19 +6,14 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
-  UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { AddHeaderInterceptor } from 'src/common/interceptors/add-header.interceptor';
-import { TimingConnectionInterceptor } from 'src/common/interceptors/timing-connection.interceptor';
-import { ErrorHandlingInterceptor } from 'src/common/interceptors/error-handling.interceptor';
 
 /**
  * CRUD
@@ -45,7 +40,6 @@ export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
 
   // Find all messages
-  @UseInterceptors(TimingConnectionInterceptor)
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
@@ -55,7 +49,6 @@ export class MessagesController {
   }
 
   // Find one message
-  @UseInterceptors(AddHeaderInterceptor, ErrorHandlingInterceptor)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.messageService.findOne(id);
