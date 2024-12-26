@@ -18,6 +18,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { AddHeaderInterceptor } from 'src/common/interceptors/add-header.interceptor';
 import { TimingConnectionInterceptor } from 'src/common/interceptors/timing-connection.interceptor';
+import { ErrorHandlingInterceptor } from 'src/common/interceptors/error-handling.interceptor';
 
 /**
  * CRUD
@@ -54,7 +55,7 @@ export class MessagesController {
   }
 
   // Find one message
-  @UseInterceptors(AddHeaderInterceptor)
+  @UseInterceptors(AddHeaderInterceptor, ErrorHandlingInterceptor)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.messageService.findOne(id);
