@@ -44,7 +44,6 @@ export class MessagesController {
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
-    console.log('MessagesController findAll executado');
     return await this.messageService.findAll(paginationDto);
   }
 
