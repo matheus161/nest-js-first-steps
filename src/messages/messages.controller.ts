@@ -50,7 +50,7 @@ export class MessagesController {
 
   // Find one message
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id') id: number) {
     return await this.messageService.findOne(id);
   }
 
@@ -63,7 +63,7 @@ export class MessagesController {
   // Update a message
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: number,
     @Body() updateMessageDto: UpdateMessageDto,
   ) {
     return this.messageService.update(id, updateMessageDto);
@@ -71,7 +71,7 @@ export class MessagesController {
 
   // Delete a message
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: number) {
     return this.messageService.remove(id);
   }
 }
