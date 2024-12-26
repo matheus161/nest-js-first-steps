@@ -10,11 +10,13 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AddHeaderInterceptor } from 'src/common/interceptors/add-header.interceptor';
 
 /**
  * CRUD
@@ -37,6 +39,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
  */
 
 @Controller('messages')
+@UseInterceptors(AddHeaderInterceptor)
 export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
 
@@ -45,6 +48,7 @@ export class MessagesController {
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
+    console.log('MessagesController findAll executado');
     return await this.messageService.findAll(paginationDto);
   }
 
@@ -62,10 +66,7 @@ export class MessagesController {
 
   // Update a message
   @Patch(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateMessageDto: UpdateMessageDto,
-  ) {
+  update(@Param('id') id: number, @Body() updateMessageDto: UpdateMessageDto) {
     return this.messageService.update(id, updateMessageDto);
   }
 
