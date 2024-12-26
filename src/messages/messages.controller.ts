@@ -9,11 +9,13 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AuthTokenInterceptor } from 'src/common/interceptors/auth-token.interceptor';
 
 /**
  * CRUD
@@ -35,6 +37,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
  * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
+@UseInterceptors(AuthTokenInterceptor)
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
