@@ -20,6 +20,7 @@ import { Request } from 'express';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 import { UrlParam } from 'src/common/params/url-param.decorator';
 import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
+import { MessageUtils } from './message.utils';
 
 /**
  * CRUD
@@ -44,7 +45,10 @@ import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
 @UseGuards(IsAdminGuard)
 @Controller('messages')
 export class MessagesController {
-  constructor(private readonly messageService: MessagesService) {}
+  constructor(
+    private readonly messageService: MessagesService,
+    private readonly messageUtils: MessageUtils,
+  ) {}
 
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
@@ -62,6 +66,7 @@ export class MessagesController {
   // Find one message
   @Get(':id')
   async findOne(@Param('id') id: number) {
+    console.log(this.messageUtils.inverteString('Matheus'));
     return await this.messageService.findOne(id);
   }
 
