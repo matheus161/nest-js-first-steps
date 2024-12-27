@@ -4,7 +4,7 @@ import { MessagesService } from './messages.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Message } from './entities/message.entity';
 import { PeopleModule } from 'src/people/people.module';
-import { MessageUtils } from './message.utils';
+import { MessageUtils, MessageUtilsMock } from './message.utils';
 
 @Module({
   imports: [
@@ -16,14 +16,10 @@ import { MessageUtils } from './message.utils';
     MessagesService,
     {
       provide: MessageUtils,
-      useClass: MessageUtils,
+      useValue: new MessageUtilsMock(), // value to be used
+      // useClass: MessageUtils,
     },
   ],
-  exports: [
-    {
-      provide: MessageUtils,
-      useClass: MessageUtils,
-    },
-  ],
+  exports: [MessageUtils],
 })
 export class MessagesModule {}

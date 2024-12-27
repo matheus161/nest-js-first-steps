@@ -7,3 +7,11 @@ export class MessageUtils {
     return str.split('').reverse().join('');
   }
 }
+
+@Injectable()
+export class MessageUtilsMock {
+  inverteString() {
+    console.log('Passei no MOCK');
+    return 'bla bla bla';
+  }
+}
