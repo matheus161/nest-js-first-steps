@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Patch,
   Post,
@@ -21,6 +22,7 @@ import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 import { UrlParam } from 'src/common/params/url-param.decorator';
 import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
 import { MessageUtils } from './message.utils';
+import { SERVER_NAME } from 'src/common/constants/server-name.constant';
 
 /**
  * CRUD
@@ -48,6 +50,8 @@ export class MessagesController {
   constructor(
     private readonly messageService: MessagesService,
     private readonly messageUtils: MessageUtils,
+    @Inject(SERVER_NAME)
+    private readonly serverName: string,
   ) {}
 
   // Find all messages
@@ -59,6 +63,7 @@ export class MessagesController {
     @ReqDataParam('method') method,
   ) {
     console.log(method, url);
+    console.log(this.serverName);
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
   }

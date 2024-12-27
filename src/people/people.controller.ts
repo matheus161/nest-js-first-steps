@@ -6,17 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  Inject,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { MessageUtils } from 'src/messages/message.utils';
+import { SERVER_NAME } from 'src/common/constants/server-name.constant';
 
 @Controller('people')
 export class PeopleController {
   constructor(
     private readonly peopleService: PeopleService,
     private readonly messageUtils: MessageUtils,
+    @Inject(SERVER_NAME)
+    private readonly varName: string, // this is already injected by messages
   ) {}
 
   @Post()
@@ -27,6 +31,7 @@ export class PeopleController {
   @Get()
   findAll() {
     console.log(this.messageUtils.inverteString('Matheus'));
+    console.log(this.varName);
     return this.peopleService.findAll();
   }
 
