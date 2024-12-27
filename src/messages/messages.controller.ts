@@ -18,6 +18,8 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Request } from 'express';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
+import { UrlParam } from 'src/common/params/url-param.decorator';
+import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
 
 /**
  * CRUD
@@ -47,8 +49,12 @@ export class MessagesController {
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto, @Req() req: Request) {
-    console.log('RecadosController', req['user']);
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+    @UrlParam() url: string,
+    @ReqDataParam('method') method,
+  ) {
+    console.log(method, url);
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
   }
