@@ -10,14 +10,14 @@ import {
   Post,
   Query,
   Req,
-  UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { AuthTokenInterceptor } from 'src/common/interceptors/auth-token.interceptor';
 import { Request } from 'express';
+import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
 
 /**
  * CRUD
@@ -39,7 +39,7 @@ import { Request } from 'express';
  * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
-@UseInterceptors(AuthTokenInterceptor)
+@UseGuards(IsAdminGuard)
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}

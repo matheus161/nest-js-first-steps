@@ -10,6 +10,7 @@ export class OutroMiddleware implements NestMiddleware {
       req['user'] = {
         nome: 'Luiz',
         sobrenome: 'Otávio',
+        role: 'admin'
       };
     }
 
