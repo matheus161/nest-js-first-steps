@@ -23,6 +23,11 @@ import { UrlParam } from 'src/common/params/url-param.decorator';
 import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
 import { MessageUtils } from './message.utils';
 import { SERVER_NAME } from 'src/common/constants/server-name.constant';
+import {
+  ONLY_LOWERCASE_LETTERS_REGEX,
+  REMOVE_SPACES_REGEX,
+} from './messages.constant';
+import { RegexProtocol } from 'src/common/regex/regex.protocol';
 
 /**
  * CRUD
@@ -52,6 +57,10 @@ export class MessagesController {
     private readonly messageUtils: MessageUtils,
     @Inject(SERVER_NAME)
     private readonly serverName: string,
+    @Inject(REMOVE_SPACES_REGEX)
+    private readonly removeSpacesRegex: RegexProtocol,
+    @Inject(ONLY_LOWERCASE_LETTERS_REGEX)
+    private readonly onlyLowercaseLettersRegez: RegexProtocol,
   ) {}
 
   // Find all messages
@@ -64,6 +73,8 @@ export class MessagesController {
   ) {
     console.log(method, url);
     console.log(this.serverName);
+    console.log(this.onlyLowercaseLettersRegez.execute(this.serverName));
+    console.log(this.removeSpacesRegex.execute(this.serverName));
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
   }
