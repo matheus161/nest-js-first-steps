@@ -28,6 +28,7 @@ import {
   REMOVE_SPACES_REGEX,
 } from './messages.constant';
 import { RegexProtocol } from 'src/common/regex/regex.protocol';
+import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
 
 /**
  * CRUD
@@ -58,7 +59,7 @@ export class MessagesController {
     @Inject(SERVER_NAME)
     private readonly serverName: string,
     @Inject(REMOVE_SPACES_REGEX)
-    private readonly removeSpacesRegex: RegexProtocol,
+    private readonly removeSpacesRegex: RemoveSpacesRegex,
     @Inject(ONLY_LOWERCASE_LETTERS_REGEX)
     private readonly onlyLowercaseLettersRegez: RegexProtocol,
   ) {}

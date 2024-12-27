@@ -10,8 +10,8 @@ import {
   ONLY_LOWERCASE_LETTERS_REGEX,
   REMOVE_SPACES_REGEX,
 } from './messages.constant';
-import { OnlyLowercaseLettersRegex } from 'src/common/regex/only-lowercase-letterts.regex';
-import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
+import { OnlyLowercaseLettersRegex } from 'src/common/regex/only-lowercase-letters.regex';
+import { RegexFactory } from 'src/common/regex/regex.factory';
 
 @Module({
   imports: [
@@ -26,6 +26,7 @@ import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
       useValue: new MessageUtilsMock(), // value to be used
       // useClass: MessageUtils,
     },
+    RegexFactory,
     {
       provide: SERVER_NAME,
       useValue: 'My Name Is NestJS',
@@ -36,7 +37,11 @@ import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
     },
     {
       provide: REMOVE_SPACES_REGEX,
-      useClass: RemoveSpacesRegex,
+      useFactory: (regexFactory: RegexFactory) => {
+        // My code/logic
+        return regexFactory.create('RemoveSpacesRegex');
+      },
+      inject: [RegexFactory],
     },
   ],
   exports: [MessageUtils, SERVER_NAME],
