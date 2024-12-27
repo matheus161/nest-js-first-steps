@@ -37,7 +37,11 @@ import { RegexFactory } from 'src/common/regex/regex.factory';
     },
     {
       provide: REMOVE_SPACES_REGEX,
-      useFactory: (regexFactory: RegexFactory) => {
+      useFactory: async (regexFactory: RegexFactory) => {
+        console.log('ESPERANDO: Vou aguardar a promise abaixo ser resolvida.');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        console.log('PRONTO: Vou aguardar a promise abaixo ser resolvida.');
+
         // My code/logic
         return regexFactory.create('RemoveSpacesRegex');
       },
