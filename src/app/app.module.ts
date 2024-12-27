@@ -11,6 +11,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from 'src/people/people.module';
 import { SimpleMiddleware } from 'src/common/middlewares/simple.middleware';
 import { OutroMiddleware } from 'src/common/middlewares/outros.middleware';
+import { APP_FILTER } from '@nestjs/core';
+import { ErrorExceptionFilter } from 'src/common/filters/error-exception.filter';
 
 /* Organizar e encapsular o código */
 @Module({
@@ -29,7 +31,10 @@ import { OutroMiddleware } from 'src/common/middlewares/outros.middleware';
     PeopleModule,
   ],
   controllers: [AppController],
-  providers: [AppService] /* Injetar dependencias */,
+  providers: [
+    AppService,
+    { provide: APP_FILTER, useClass: ErrorExceptionFilter },
+  ] /* Injetar dependencias */,
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
