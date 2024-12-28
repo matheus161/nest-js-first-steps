@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -6,7 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { ConfigService } from '@nestjs/config';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import messagesConfig from './messages.config';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -18,11 +19,14 @@ export class MessagesService {
     private readonly messageRepository: Repository<Message>,
     private readonly peopleService: PeopleService,
     private readonly configService: ConfigService,
+    @Inject(messagesConfig.KEY)
+    private readonly messagesConfiguration: ConfigType<typeof messagesConfig>,
   ) {
     const databaseUsername =
       this.configService.get<string>('DATABASE_USERNAME');
     console.log({ databaseUsername });
     console.log('proccess.env', process.env.DATABASE_USERNAME);
+    console.log({ messagesConfiguration });
   }
 
   throwNotFoundError() {

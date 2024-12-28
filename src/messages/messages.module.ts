@@ -6,10 +6,11 @@ import { Message } from './entities/message.entity';
 import { PeopleModule } from 'src/people/people.module';
 import { MessageUtils } from './message.utils';
 import { ConfigModule } from '@nestjs/config';
+import messagesConfig from './messages.config';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forFeature(messagesConfig),
     TypeOrmModule.forFeature([Message]),
     forwardRef(() => PeopleModule),
   ], // Import entities for this module
