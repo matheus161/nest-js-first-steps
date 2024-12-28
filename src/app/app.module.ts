@@ -9,7 +9,10 @@ import { ConfigModule } from '@nestjs/config';
 /* Organizar e encapsular o código */
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      // envFilePath: ['env/.env'], // multiple files
+      // ignoreEnvFile: true, // ignore when necessary (Heroku)
+    }),
     TypeOrmModule.forRoot({
       type: process.env.DATABASE_TYPE as 'postgres',
       host: process.env.DATABASE_HOST,
