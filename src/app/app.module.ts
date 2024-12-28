@@ -5,6 +5,7 @@ import { MessagesModule } from 'src/messages/messages.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from 'src/people/people.module';
 import { ConfigModule } from '@nestjs/config';
+import * as Joi from '@hapi/joi';
 
 /* Organizar e encapsular o código */
 @Module({
@@ -12,6 +13,16 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       // envFilePath: ['env/.env'], // multiple files
       // ignoreEnvFile: true, // ignore when necessary (Heroku)
+      validationSchema: Joi.object({
+        DATABASE_TYPE: Joi.required(),
+        DATABASE_HOST: Joi.required(),
+        DATABASE_PORT: Joi.number().default(5432),
+        DATABASE_USERNAME: Joi.required(),
+        DATABASE_DATABASE: Joi.required(),
+        DATABASE_PASSWORD: Joi.required(),
+        DATABASE_AUTOLOADENTITIES: Joi.number().min(0).max(1).default(0),
+        DATABASE_SYNCHRONIZE: Joi.number().min(0).max(1).default(0),
+      }),
     }),
     TypeOrmModule.forRoot({
       type: process.env.DATABASE_TYPE as 'postgres',
