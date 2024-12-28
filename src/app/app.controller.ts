@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { AppService } from './app.service';
-import appConfig from './app.config';
 import { ConfigType } from '@nestjs/config';
+import globalConfig from 'src/global-config/global.config';
 
 @Controller()
 export class AppController {
@@ -9,8 +9,8 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     // This allow me to access config variables with type
-    @Inject(appConfig.KEY)
-    private readonly appConfiguration: ConfigType<typeof appConfig>,
+    @Inject(globalConfig.KEY)
+    private readonly globalConfiguration: ConfigType<typeof globalConfig>,
   ) {}
 
   // @Get() // Método da solicitação
