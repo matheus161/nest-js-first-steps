@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -16,7 +17,13 @@ export class MessagesService {
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
     private readonly peopleService: PeopleService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    const databaseUsername =
+      this.configService.get<string>('DATABASE_USERNAME');
+    console.log({ databaseUsername });
+    console.log('proccess.env', process.env.DATABASE_USERNAME);
+  }
 
   throwNotFoundError() {
     // throw new HttpException('Recado não encontrado', HttpStatus;NOT_FOUND)
