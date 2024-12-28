@@ -5,30 +5,17 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Inject,
   Param,
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Request } from 'express';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
-import { UrlParam } from 'src/common/params/url-param.decorator';
-import { ReqDataParam } from 'src/common/params/req-data-param.decorator';
-import { MessageUtils } from './message.utils';
-import { SERVER_NAME } from 'src/common/constants/server-name.constant';
-import {
-  ONLY_LOWERCASE_LETTERS_REGEX,
-  REMOVE_SPACES_REGEX,
-} from './messages.constant';
-import { RegexProtocol } from 'src/common/regex/regex.protocol';
-import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
 
 /**
  * CRUD
@@ -50,32 +37,14 @@ import { RemoveSpacesRegex } from 'src/common/regex/remove-spaces.regex';
  * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
-@UseGuards(IsAdminGuard)
 @Controller('messages')
 export class MessagesController {
-  constructor(
-    private readonly messageService: MessagesService,
-    private readonly messageUtils: MessageUtils,
-    @Inject(SERVER_NAME)
-    private readonly serverName: string,
-    @Inject(REMOVE_SPACES_REGEX)
-    private readonly removeSpacesRegex: RemoveSpacesRegex,
-    @Inject(ONLY_LOWERCASE_LETTERS_REGEX)
-    private readonly onlyLowercaseLettersRegez: RegexProtocol,
-  ) {}
+  constructor(private readonly messageService: MessagesService) {}
 
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
-  async findAll(
-    @Query() paginationDto: PaginationDto,
-    @UrlParam() url: string,
-    @ReqDataParam('method') method,
-  ) {
-    console.log(method, url);
-    console.log(this.serverName);
-    console.log(this.onlyLowercaseLettersRegez.execute(this.serverName));
-    console.log(this.removeSpacesRegex.execute(this.serverName));
+  async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
   }
@@ -83,7 +52,6 @@ export class MessagesController {
   // Find one message
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    console.log(this.messageUtils.inverteString('Matheus'));
     return await this.messageService.findOne(id);
   }
 

@@ -3,15 +3,11 @@ import { PeopleService } from './people.service';
 import { PeopleController } from './people.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Person } from './entities/person.entity';
-import { MessagesModule } from 'src/messages/messages.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Person]),
-    forwardRef(() => MessagesModule), // handle circular dependency
-  ],
+  imports: [TypeOrmModule.forFeature([Person])],
   controllers: [PeopleController],
   providers: [PeopleService],
-  exports: [PeopleService],
+  exports: [PeopleService], // import this module to others
 })
 export class PeopleModule {}

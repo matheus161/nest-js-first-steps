@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { MessageUtils } from './message.utils';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -17,7 +16,6 @@ export class MessagesService {
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
     private readonly peopleService: PeopleService,
-    private readonly messageUtils: MessageUtils,
   ) {}
 
   throwNotFoundError() {
@@ -26,8 +24,6 @@ export class MessagesService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    console.log(this.messageUtils.inverteString('Matheus'));
-
     const { limit = 10, offset = 0 } = paginationDto;
 
     return await this.messageRepository.find({
