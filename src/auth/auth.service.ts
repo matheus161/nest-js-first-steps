@@ -6,6 +6,7 @@ import { HashingService } from './hashing/hashing.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,8 @@ export class AuthService {
     private readonly hashingService: HashingService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {
-    console.log(jwtConfiguration);
-  }
+    private readonly jwtService: JwtService,
+  ) {}
 
   async login(loginDto: LoginDto) {
     const person = await this.personRepository.findOneBy({
@@ -37,6 +37,19 @@ export class AuthService {
       throw new UnauthorizedException('Usuário ou senha inválidos.');
     }
 
-    return { message: 'Usuário logado!' };
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: person.id,
+        email: person.email,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.jwtTtl,
+      },
+    );
+
+    return { accessToken };
   }
 }
