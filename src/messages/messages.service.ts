@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -8,6 +13,7 @@ import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import messagesConfig from './messages.config';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -84,14 +90,17 @@ export class MessagesService {
     return message;
   }
 
-  async create(createMessageDto: CreateMessageDto) {
-    const { deId, paraId } = createMessageDto;
-
-    // Find the person who is creating the message
-    const de = await this.peopleService.findOne(deId);
+  async create(
+    createMessageDto: CreateMessageDto,
+    tokenPayload: TokenPayloadDto,
+  ) {
+    const { paraId } = createMessageDto;
 
     // Find the person to whom the message is being sent
     const para = await this.peopleService.findOne(paraId);
+
+    // Find the person who is creating the message
+    const de = await this.peopleService.findOne(tokenPayload.sub);
 
     const newMessage = {
       texto: createMessageDto.texto,
@@ -108,15 +117,27 @@ export class MessagesService {
       ...message,
       de: {
         id: message.de.id,
+        nome: message.de.nome,
       },
       para: {
         id: message.para.id,
+        nome: message.para.nome,
       },
     };
   }
 
-  async update(id: number, updateMessageDto: UpdateMessageDto) {
+  async update(
+    id: number,
+    updateMessageDto: UpdateMessageDto,
+    tokenPayload: TokenPayloadDto,
+  ) {
     const message = await this.findOne(id);
+
+    if (message.de.id !== tokenPayload.sub) {
+      throw new ForbiddenException(
+        'Você não pode alterar um recado que não seja seu.',
+      );
+    }
 
     message.texto = updateMessageDto?.texto ?? message.texto;
     message.lido = updateMessageDto?.lido ?? message.lido;
@@ -124,12 +145,14 @@ export class MessagesService {
     return await this.messageRepository.save(message);
   }
 
-  async remove(id: number) {
-    const message = await this.messageRepository.findOneBy({
-      id,
-    });
+  async remove(id: number, tokenPayload: TokenPayloadDto) {
+    const message = await this.findOne(id);
 
-    if (!message) return this.throwNotFoundError();
+    if (message.de.id !== tokenPayload.sub) {
+      throw new ForbiddenException(
+        'Você não pode alterar um recado que não seja seu.',
+      );
+    }
 
     return this.messageRepository.remove(message);
   }

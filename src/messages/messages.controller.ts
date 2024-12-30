@@ -16,6 +16,9 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { IsAdminGuard } from 'src/common/guards/is-admin.guard';
+import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/params/token-payload.param';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
 /**
  * CRUD
@@ -56,20 +59,33 @@ export class MessagesController {
   }
 
   // Create a message
+  @UseGuards(AuthTokenGuard)
   @Post()
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
+  create(
+    @Body() createMessageDto: CreateMessageDto,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.messageService.create(createMessageDto, tokenPayload);
   }
 
   // Update a message
+  @UseGuards(AuthTokenGuard)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(id, updateMessageDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateMessageDto: UpdateMessageDto,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.messageService.update(id, updateMessageDto, tokenPayload);
   }
 
   // Delete a message
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.messageService.remove(id);
+  remove(
+    @Param('id') id: number,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.messageService.remove(id, tokenPayload);
   }
 }
