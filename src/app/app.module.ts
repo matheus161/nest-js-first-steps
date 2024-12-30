@@ -7,6 +7,8 @@ import { PeopleModule } from 'src/people/people.module';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import globalConfig from 'src/global-config/global.config';
+import { GlobalConfigModule } from 'src/global-config/global-config.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 /* Organizar e encapsular o código */
 @Module({
@@ -58,6 +60,8 @@ import globalConfig from 'src/global-config/global.config';
     }),
     MessagesModule,
     PeopleModule,
+    GlobalConfigModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService] /* Injetar dependencias */,
