@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -91,6 +92,10 @@ export class PeopleService {
       throw new NotFoundException('Pessoa não encontrada');
     }
 
+    if (person.id !== tokenPayload.sub) {
+      throw new ForbiddenException('Usuário inválido.');
+    }
+
     return this.personRepository.save(person);
   }
 
@@ -99,6 +104,10 @@ export class PeopleService {
 
     if (!person) {
       throw new NotFoundException('Pessoa não encontrada');
+    }
+
+    if (person.id !== tokenPayload.sub) {
+      throw new ForbiddenException('Usuário inválido.');
     }
 
     return this.personRepository.remove(person);
