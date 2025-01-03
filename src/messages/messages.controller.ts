@@ -21,6 +21,7 @@ import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { RoutePolicyGuard } from 'src/auth/guards/route-policy.guard';
 import { SetRoutePolicy } from 'src/auth/decorators/set-route-policy.decorator';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
+import { AuthAndPolicyGuard } from 'src/auth/guards/auth-and-policy.guard';
 
 /**
  * CRUD
@@ -42,7 +43,6 @@ import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
  * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
-@UseGuards(RoutePolicyGuard)
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
@@ -50,7 +50,6 @@ export class MessagesController {
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @Get()
-  @SetRoutePolicy(RoutePolicies.findAllRecados)
   async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
@@ -63,7 +62,8 @@ export class MessagesController {
   }
 
   // Create a message
-  @UseGuards(AuthTokenGuard)
+  @SetRoutePolicy(RoutePolicies.createRecado)
+  @UseGuards(AuthAndPolicyGuard)
   @Post()
   create(
     @Body() createMessageDto: CreateMessageDto,
