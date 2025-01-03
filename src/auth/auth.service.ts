@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from './config/jwt.config';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,19 +38,36 @@ export class AuthService {
       throw new UnauthorizedException('Usuário ou senha inválidos.');
     }
 
-    const accessToken = await this.jwtService.signAsync(
+    const accessToken = await this.signJwtAsync<Partial<Person>>(
+      person.id,
+      this.jwtConfiguration.jwtTtl,
+      { email: person.email },
+    );
+
+    const refreshToken = await this.signJwtAsync(
+      person.id,
+      this.jwtConfiguration.jwtRefreshTtl,
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  private async signJwtAsync<T>(sub: number, expiresIn: number, payload?: T) {
+    return await this.jwtService.signAsync(
       {
-        sub: person.id,
-        email: person.email,
+        sub,
+        ...payload,
       },
       {
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
         secret: this.jwtConfiguration.secret,
-        expiresIn: this.jwtConfiguration.jwtTtl,
+        expiresIn,
       },
     );
+  }
 
-    return { accessToken };
+  refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    return true;
   }
 }
