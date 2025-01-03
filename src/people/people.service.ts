@@ -30,6 +30,7 @@ export class PeopleService {
         nome: createPersonDto.nome,
         passwordHash,
         email: createPersonDto.email,
+        routePolicies: createPersonDto.routePolicies,
       };
 
       const newPerson = this.personRepository.create(peopleData);
