@@ -23,6 +23,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const person = await this.personRepository.findOneBy({
       email: loginDto.email,
+      active: true,
     });
 
     if (!person) {
@@ -85,6 +86,7 @@ export class AuthService {
 
       const pessoa = await this.personRepository.findOneBy({
         id: sub,
+        active: true,
       });
 
       if (!pessoa) {
