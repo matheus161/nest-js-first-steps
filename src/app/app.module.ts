@@ -9,6 +9,8 @@ import * as Joi from '@hapi/joi';
 import globalConfig from 'src/global-config/global.config';
 import { GlobalConfigModule } from 'src/global-config/global-config.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
 
 /* Organizar e encapsular o código */
 @Module({
@@ -57,6 +59,11 @@ import { AuthModule } from 'src/auth/auth.module';
           synchronize: globalConfigurations.database.synchronize,
         };
       },
+    }),
+    ServeStaticModule.forRoot({
+      // main file, less one (src), les one (root)
+      rootPath: path.resolve(__dirname, '..', '..', 'pictures'),
+      serveRoot: '/pictures',
     }),
     MessagesModule,
     PeopleModule,
