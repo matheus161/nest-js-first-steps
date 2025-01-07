@@ -12,7 +12,6 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
-  BadRequestException,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
@@ -23,8 +22,6 @@ import { REQUEST_TOKEN_PAYLOAD_KEY } from 'src/auth/auth.constants';
 import { TokenPayloadParam } from 'src/auth/params/token-payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as path from 'path';
-import * as fs from 'fs/promises';
 
 @Controller('people')
 export class PeopleController {
@@ -86,25 +83,6 @@ export class PeopleController {
     file: Express.Multer.File,
     @TokenPayloadParam() tokenPayload: TokenPayloadDto,
   ) {
-    if (file.size < 1024) {
-      throw new BadRequestException('File too small');
-    }
-
-    const fileExtension = path
-      .extname(file.originalname)
-      .toLowerCase()
-      .substring(1);
-    const fileName = `${tokenPayload.sub}.${fileExtension}`;
-    const fileFullPath = path.resolve(process.cwd(), 'pictures', fileName);
-
-    await fs.writeFile(fileFullPath, file.buffer);
-
-    return {
-      fieldname: file.fieldname,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      buffer: {},
-      size: file.size,
-    };
+    return this.peopleService.uploadPicture(file, tokenPayload);
   }
 }
