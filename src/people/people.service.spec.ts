@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
+import { ConflictException } from '@nestjs/common';
 
 describe('PessoasService', () => {
   let peopleService: PeopleService;
@@ -90,6 +91,16 @@ describe('PessoasService', () => {
       // O resultado do método pessoaService.create retornou a nova
       // pessoa criada?
       expect(result).toEqual(newPerson);
+    });
+
+    it('should throw a ConflictException if e-mail already exists', async () => {
+      jest.spyOn(personRepository, 'save').mockRejectedValue({
+        code: '23505',
+      });
+
+      await expect(peopleService.create({} as any)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 });
