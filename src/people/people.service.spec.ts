@@ -23,6 +23,7 @@ describe('PessoasService', () => {
             save: jest.fn(),
             create: jest.fn(),
             findOneBy: jest.fn(),
+            find: jest.fn(),
           },
         },
         {
@@ -136,6 +137,31 @@ describe('PessoasService', () => {
 
     it('should throw an error if person not found', async () => {
       await expect(peopleService.findOne(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return all people', async () => {
+      const personMock: Person[] = [
+        {
+          id: 1,
+          nome: 'Matheus',
+          email: 'matheus@email.com',
+          passwordHash: '123456',
+        } as Person,
+      ];
+
+      jest.spyOn(personRepository, 'find').mockResolvedValue(personMock);
+
+      const result = await peopleService.findAll();
+
+      expect(result).toEqual(personMock);
+      expect(personRepository.find).toHaveBeenCalledWith({
+        // Isso é importante para manter a regra de negócio
+        order: {
+          id: 'desc',
+        },
+      });
     });
   });
 });
