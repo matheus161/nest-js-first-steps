@@ -6,7 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('PessoasService', () => {
   let peopleService: PeopleService;
@@ -22,6 +22,7 @@ describe('PessoasService', () => {
           useValue: {
             save: jest.fn(),
             create: jest.fn(),
+            findOneBy: jest.fn(),
           },
         },
         {
@@ -111,6 +112,30 @@ describe('PessoasService', () => {
       await expect(peopleService.create({} as any)).rejects.toThrow(
         new Error('Erro genérico'),
       );
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a person when find it', async () => {
+      const personId = 1;
+      const person = {
+        id: personId,
+        nome: 'Luiz',
+        email: 'luiz@email.com',
+        passwordHash: '123456',
+      };
+
+      jest
+        .spyOn(personRepository, 'findOneBy')
+        .mockResolvedValue(person as any);
+
+      const result = await peopleService.findOne(personId);
+
+      expect(result).toEqual(person);
+    });
+
+    it('should throw an error if person not found', async () => {
+      await expect(peopleService.findOne(1)).rejects.toThrow(NotFoundException);
     });
   });
 });
