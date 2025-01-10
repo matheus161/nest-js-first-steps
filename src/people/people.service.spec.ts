@@ -6,7 +6,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 
 describe('PessoasService', () => {
   let peopleService: PeopleService;
@@ -201,6 +205,37 @@ describe('PessoasService', () => {
       });
       expect(personRepository.save).toHaveBeenCalledWith(updatedPerson);
       expect(result).toEqual(updatedPerson);
+    });
+
+    it('should throw a ForbiddenException if user is not authorized', async () => {
+      // Arrange
+      const personId = 1;
+      const tokenPayload = { sub: 2 } as any;
+      const updatePersonDto = { nome: 'Joana' };
+      const existingPerson = { id: personId, nome: 'Joana' };
+
+      jest
+        .spyOn(personRepository, 'preload')
+        .mockResolvedValue(existingPerson as any);
+
+      await expect(
+        peopleService.update(personId, updatePersonDto, tokenPayload),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw a NotFounderException if user not exists', async () => {
+      // Arrange
+      const personId = 1;
+      const updatePersonDto = { nome: 'Joana' };
+      const tokenPayload = { sub: personId } as any;
+
+      // Fake that preload returned null
+      jest.spyOn(personRepository, 'preload').mockResolvedValue(null);
+
+      // Act and Assert
+      await expect(
+        peopleService.update(personId, updatePersonDto, tokenPayload),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
