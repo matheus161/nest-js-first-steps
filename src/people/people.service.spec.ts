@@ -29,6 +29,7 @@ describe('PessoasService', () => {
             findOneBy: jest.fn(),
             find: jest.fn(),
             preload: jest.fn(),
+            remove: jest.fn(),
           },
         },
         {
@@ -218,6 +219,7 @@ describe('PessoasService', () => {
         .spyOn(personRepository, 'preload')
         .mockResolvedValue(existingPerson as any);
 
+      // Act and Assert
       await expect(
         peopleService.update(personId, updatePersonDto, tokenPayload),
       ).rejects.toThrow(ForbiddenException);
@@ -236,6 +238,69 @@ describe('PessoasService', () => {
       await expect(
         peopleService.update(personId, updatePersonDto, tokenPayload),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove an authorized person', async () => {
+      // Arrange
+      const personId = 1;
+      const tokenPayload = { sub: personId } as any;
+      const existingPerson = { id: personId, nome: 'Joana' };
+
+      // Mock findOneBy to return the existing person
+      jest
+        .spyOn(personRepository, 'findOneBy')
+        .mockResolvedValue(existingPerson as any);
+
+      // Mock remove to return the deleted person
+      jest
+        .spyOn(personRepository, 'remove')
+        .mockResolvedValue(existingPerson as any);
+
+      // Act
+      const result = await peopleService.remove(personId, tokenPayload);
+
+      // Assert
+      // Ensure findOneBy was called with the correct id
+      expect(personRepository.findOneBy).toHaveBeenCalledWith({ id: personId });
+
+      // Ensure peopleService.remove was called with correct arguments
+      expect(personRepository.remove).toHaveBeenCalledWith(existingPerson);
+
+      // Ensure the result is the deleted person
+      expect(result).toEqual(existingPerson);
+    });
+
+    it('should throw NotFoundException if person not exists', async () => {
+      // Arrange
+      const personId = 1;
+      const tokenPayload = { sub: personId } as any;
+
+      // Mock findOneBy to return the existing person
+      jest.spyOn(personRepository, 'findOneBy').mockResolvedValue(null);
+
+      // Act and Assert
+      await expect(
+        peopleService.remove(personId, tokenPayload),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException if user is not authorized', async () => {
+      // Arrange
+      const personId = 1;
+      const tokenPayload = { sub: 2 } as any;
+      const existingPerson = { id: personId, nome: 'Joana' };
+
+      // Mock findOneBy to return the existing person
+      jest
+        .spyOn(personRepository, 'findOneBy')
+        .mockResolvedValue(existingPerson as any);
+
+      // Act and Assert
+      await expect(
+        peopleService.remove(personId, tokenPayload),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });
