@@ -12,6 +12,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import appConfig from 'src/app/config/app.config';
 import * as request from 'supertest';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
+import { CreatePersonDto } from 'src/people/dto/create-person.dto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -55,7 +56,7 @@ describe('AppController (e2e)', () => {
 
   describe('/people (POST)', () => {
     it('should create a person with success', async () => {
-      const createPersonDto = {
+      const createPersonDto: CreatePersonDto = {
         email: 'matheus@email.com',
         password: '123456',
         nome: 'Matheus',
@@ -77,6 +78,48 @@ describe('AppController (e2e)', () => {
         id: expect.any(Number),
         routePolicies: createPersonDto.routePolicies,
       });
+    });
+
+    it('should throw an error if user with email already exists', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      const response = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CONFLICT);
+
+      expect(response.body.message).toBe('E-mail já está cadastrado.');
+    });
+
+    it('should throw an error when password is too short', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.BAD_REQUEST);
+
+      expect(response.body.message).toEqual([
+        'password must be longer than or equal to 5 characters',
+      ]);
+      expect(response.body.message).toContain(
+        'password must be longer than or equal to 5 characters',
+      );
     });
   });
 });
