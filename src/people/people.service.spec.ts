@@ -387,4 +387,4 @@ describe('PessoasService', () => {
       ).rejects.toThrow(NotFoundException);
     });
   });
-});
+}); 
