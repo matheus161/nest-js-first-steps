@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,6 +10,8 @@ import { PeopleModule } from 'src/people/people.module';
 import { GlobalConfigModule } from 'src/global-config/global-config.module';
 import { AuthModule } from 'src/auth/auth.module';
 import appConfig from 'src/app/config/app.config';
+import * as request from 'supertest';
+import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -51,7 +53,30 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('/ (GET)', () => {
-    //
+  describe('/people (POST)', () => {
+    it('should create a person with success', async () => {
+      const createPersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+      const response = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      expect(response.body).toEqual({
+        email: createPersonDto.email,
+        passwordHash: expect.any(String),
+        nome: createPersonDto.nome,
+        active: true,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        picture: '',
+        id: expect.any(Number),
+        routePolicies: createPersonDto.routePolicies,
+      });
+    });
   });
 });
