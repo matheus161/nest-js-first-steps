@@ -14,8 +14,37 @@ import * as request from 'supertest';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
 import { CreatePersonDto } from 'src/people/dto/create-person.dto';
 
+const login = async (
+  app: INestApplication,
+  email: string,
+  password: string,
+) => {
+  const response = await request(app.getHttpServer())
+    .post('/auth')
+    .send({ email, password });
+
+  return response.body.accessToken;
+};
+
+const createUserAndLogin = async (app: INestApplication) => {
+  const nome = 'Any User';
+  const email = 'anyuser@email.com';
+  const password = '123456';
+  const routePolicies = [RoutePolicies.createPessoa];
+
+  await request(app.getHttpServer()).post('/people').send({
+    nome,
+    email,
+    password,
+    routePolicies,
+  });
+
+  return login(app, email, password);
+};
+
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let accessToken: string;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -48,6 +77,8 @@ describe('AppController (e2e)', () => {
     appConfig(app);
 
     await app.init();
+
+    accessToken = await createUserAndLogin(app);
   });
 
   afterEach(async () => {
@@ -120,6 +151,163 @@ describe('AppController (e2e)', () => {
       expect(response.body.message).toContain(
         'password must be longer than or equal to 5 characters',
       );
+    });
+  });
+
+  describe('GET /people', () => {
+    it('should return all people from database', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      // First create ir
+      await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      // Set Token and findAll
+      const response = await request(app.getHttpServer())
+        .get('/people')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.any(Number),
+            email: createPersonDto.email,
+            nome: createPersonDto.nome,
+          }),
+        ]),
+      );
+    });
+  });
+
+  describe('GET /people/:id', () => {
+    it('should return people by ID', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      const createResponse = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      const personId = createResponse.body.id;
+
+      const response = await request(app.getHttpServer())
+        .get(`/people/${personId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          id: personId,
+          email: createPersonDto.email,
+          nome: createPersonDto.nome,
+        }),
+      );
+    });
+
+    it('should throw an error when a person is not found', async () => {
+      await request(app.getHttpServer())
+        .get('/people/9999') // ID fictício
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+  });
+
+  describe('PATCH /people/:id', () => {
+    it('should update a person', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      const createResponse = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      const personId = createResponse.body.id;
+
+      const authToken = await login(
+        app,
+        createPersonDto.email,
+        createPersonDto.password,
+      );
+
+      const updatedBody = { nome: 'Matheus L.' };
+      const updateResponse = await request(app.getHttpServer())
+        .patch(`/people/${personId}`)
+        .send(updatedBody)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(updateResponse.body).toEqual(
+        expect.objectContaining({
+          id: personId,
+          nome: updatedBody.nome,
+        }),
+      );
+    });
+
+    it('should throw an error when a person is not found', async () => {
+      await request(app.getHttpServer())
+        .patch('/people/9999') // ID fictício
+        .send({
+          nome: 'Nome Atualizado',
+        })
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+  });
+
+  describe('DELETE /people/:id', () => {
+    it('should return a person', async () => {
+      const createPersonDto: CreatePersonDto = {
+        email: 'matheus@email.com',
+        password: '123456',
+        nome: 'Matheus',
+        routePolicies: [RoutePolicies.createPessoa],
+      };
+
+      const createResponse = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
+
+      const authToken = await login(
+        app,
+        createPersonDto.email,
+        createPersonDto.password,
+      );
+
+      const personId = createResponse.body.id;
+
+      const response = await request(app.getHttpServer())
+        .delete(`/people/${personId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body.email).toBe(createPersonDto.email);
+    });
+
+    it('should throw an error if person not exists', async () => {
+      await request(app.getHttpServer())
+        .delete('/people/9999') // ID fictício
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });
