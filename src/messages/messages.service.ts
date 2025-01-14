@@ -14,6 +14,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import messagesConfig from './messages.config';
 import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
+import { EmailService } from 'src/email/email.service';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -27,6 +28,7 @@ export class MessagesService {
     private readonly configService: ConfigService,
     @Inject(messagesConfig.KEY)
     private readonly messagesConfiguration: ConfigType<typeof messagesConfig>,
+    private readonly emailService: EmailService,
   ) {
     const databaseUsername =
       this.configService.get<string>('DATABASE_USERNAME');
@@ -112,6 +114,12 @@ export class MessagesService {
 
     const message = await this.messageRepository.create(newMessage);
     await this.messageRepository.save(message);
+
+    await this.emailService.sendEmail(
+      para.email,
+      `Você recebeu um recado de "${de.nome}" <${de.email}>`,
+      createMessageDto.texto,
+    );
 
     return {
       ...message,

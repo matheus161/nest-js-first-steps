@@ -41,7 +41,7 @@ export class PeopleService {
       return newPerson;
     } catch (error) {
       if (error.code === '23505') {
-        throw new ConflictException('E-mail já está cadastrado.');
+        throw new ConflictException('n');
       }
 
       throw error;
