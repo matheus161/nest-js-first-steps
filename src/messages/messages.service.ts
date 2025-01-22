@@ -15,6 +15,7 @@ import { ConfigService, ConfigType } from '@nestjs/config';
 import messagesConfig from './messages.config';
 import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { EmailService } from 'src/email/email.service';
+import { ReponseMessageDto } from './dto/response-message.dto';
 
 /**
  * This serves as a repository, handling all CRUD operations related to the database.
@@ -42,7 +43,7 @@ export class MessagesService {
     throw new NotFoundException('Recado não encontrado');
   }
 
-  async findAll(paginationDto?: PaginationDto) {
+  async findAll(paginationDto?: PaginationDto): Promise<ReponseMessageDto[]> {
     const { limit = 10, offset = 0 } = paginationDto;
 
     return await this.messageRepository.find({
@@ -65,7 +66,7 @@ export class MessagesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<ReponseMessageDto> {
     // const message = this.messages.find(item => item.id === id);
     const message = await this.messageRepository.findOne({
       where: {
@@ -95,7 +96,7 @@ export class MessagesService {
   async create(
     createMessageDto: CreateMessageDto,
     tokenPayload: TokenPayloadDto,
-  ) {
+  ): Promise<ReponseMessageDto> {
     const { paraId } = createMessageDto;
 
     // Find the person to whom the message is being sent
@@ -138,7 +139,7 @@ export class MessagesService {
     id: number,
     updateMessageDto: UpdateMessageDto,
     tokenPayload: TokenPayloadDto,
-  ) {
+  ): Promise<ReponseMessageDto> {
     const message = await this.findOne(id);
 
     if (message.de.id !== tokenPayload.sub) {
@@ -153,7 +154,10 @@ export class MessagesService {
     return await this.messageRepository.save(message);
   }
 
-  async remove(id: number, tokenPayload: TokenPayloadDto) {
+  async remove(
+    id: number,
+    tokenPayload: TokenPayloadDto,
+  ): Promise<ReponseMessageDto> {
     const message = await this.findOne(id);
 
     if (message.de.id !== tokenPayload.sub) {
@@ -162,6 +166,8 @@ export class MessagesService {
       );
     }
 
-    return this.messageRepository.remove(message);
+    await this.messageRepository.delete(message.id);
+
+    return message;
   }
 }

@@ -22,6 +22,7 @@ import { RoutePolicyGuard } from 'src/auth/guards/route-policy.guard';
 import { SetRoutePolicy } from 'src/auth/decorators/set-route-policy.decorator';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
 import { AuthAndPolicyGuard } from 'src/auth/guards/auth-and-policy.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 /**
  * CRUD
@@ -49,6 +50,7 @@ export class MessagesController {
 
   // Find all messages
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
+  @ApiBearerAuth()
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
@@ -56,6 +58,7 @@ export class MessagesController {
   }
 
   // Find one message
+  @ApiBearerAuth()
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return await this.messageService.findOne(id);
@@ -64,6 +67,7 @@ export class MessagesController {
   // Create a message
   @SetRoutePolicy(RoutePolicies.createRecado)
   @UseGuards(AuthAndPolicyGuard)
+  @ApiBearerAuth()
   @Post()
   create(
     @Body() createMessageDto: CreateMessageDto,
@@ -74,6 +78,7 @@ export class MessagesController {
 
   // Update a message
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   update(
     @Param('id') id: number,
@@ -85,6 +90,7 @@ export class MessagesController {
 
   // Delete a message
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   remove(
     @Param('id') id: number,

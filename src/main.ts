@@ -13,6 +13,7 @@ async function bootstrap() {
     .setTitle('Recados API')
     .setDescription('Envie recados para seus amigos e familiares')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, documentBuilderConfig);
