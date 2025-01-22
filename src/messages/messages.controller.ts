@@ -22,7 +22,14 @@ import { RoutePolicyGuard } from 'src/auth/guards/route-policy.guard';
 import { SetRoutePolicy } from 'src/auth/decorators/set-route-policy.decorator';
 import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
 import { AuthAndPolicyGuard } from 'src/auth/guards/auth-and-policy.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 /**
  * CRUD
@@ -44,6 +51,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
  * DTO -> Objeto simples -> Validar dados / Transformar dados (NestJS)
  */
 
+@ApiTags('Messages') // Tag used to organize endpoints
 @Controller('messages')
 export class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
@@ -52,6 +60,20 @@ export class MessagesController {
   @HttpCode(HttpStatus.OK) // Change the HttpCode when returning
   @ApiBearerAuth()
   @Get()
+  @ApiOperation({ summary: 'Obter todos os recados com paginação' }) // Descrição do endpoint
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    example: 1,
+    description: 'Itens a pular',
+  }) // Parâmetros da query
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: 10,
+    description: 'Limite de itens por página',
+  })
+  @ApiResponse({ status: 200, description: 'Recados retornados com sucesso.' }) // Resposta bem-sucedida
   async findAll(@Query() paginationDto: PaginationDto) {
     // return `This route returns all messages paginated. Limit=${limit}, Offset=${offset}`;
     return await this.messageService.findAll(paginationDto);
@@ -60,6 +82,10 @@ export class MessagesController {
   // Find one message
   @ApiBearerAuth()
   @Get(':id')
+  @ApiOperation({ summary: 'Obter um recado específico pelo ID' }) // Descrição da operação
+  @ApiParam({ name: 'id', description: 'ID do recado', example: 1 }) // Parâmetro da rota
+  @ApiResponse({ status: 200, description: 'Recado retornado com sucesso.' }) // Resposta bem-sucedida
+  @ApiResponse({ status: 404, description: 'Recado não encontrado.' }) // Resposta de erro
   async findOne(@Param('id') id: number) {
     return await this.messageService.findOne(id);
   }
