@@ -2,12 +2,23 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import appConfig from './app/config/app.config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 
 async function bootstrap() {
   /* Carrega o módulo raiz da aplicação */
   const app = await NestFactory.create(AppModule);
 
   appConfig(app);
+
+  if (process.env.NODE_ENV === 'production') {
+    // helmet -> cabeçalhos de segurança no protocolo HTTP
+    app.use(helmet());
+
+    // cors -> permitir que outro domínio faça requests na sua aplicação
+    app.enableCors({
+      origin: 'https://meuapp.com.br',
+    });
+  }
 
   const documentBuilderConfig = new DocumentBuilder()
     .setTitle('Recados API')
